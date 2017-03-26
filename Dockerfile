@@ -34,5 +34,16 @@ ENV PYTHONPATH 		/opt/graphite/webapp
 
 RUN apt-get install -yq python-cairo-dev
 
+
+RUN pip install gunicorn
+
+RUN cd /opt/graphite && cp conf/graphite.wsgi.example conf/graphite.wsgi
 RUN cd /opt/graphite && cp webapp/graphite/local_settings.py.example webapp/graphite/local_settings.py
+
 RUN cd /opt/graphite-web && django-admin.py migrate --settings=graphite.settings --run-syncdb
+EXPOSE 80
+
+RUN cd /opt/graphite/conf && cp carbon.conf.example carbon.conf
+RUN cd /opt/graphite/conf && cp storage-schemas.conf.example storage-schemas.conf
+
+CMD cd /opt/graphite/conf && gunicorn graphite.wsgi -b 0.0.0.0:80
